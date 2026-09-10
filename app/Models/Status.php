@@ -3,19 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
 
-class User extends Model
+class Status extends Model
 {
     protected $fillable = [
-        'name',
-        'email'
-    ];
-
-    protected $hidden = [
-        'password_hash'
+        'name'
     ];
 
     #[Override]
@@ -24,20 +18,13 @@ class User extends Model
         return [
             'id' => 'integer',
             'name' => 'string',
-            'email' => 'string',
-            'password_hash' => 'string',
             'created_at' => 'datetime',
             'updated_at' => 'datetime'
-        ];      
+        ];
     }
 
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
-    }
-
-    public function projects(): BelongsToMany
-    {
-        return $this->belongsToMany(Project::class)->withPivot('role', 'joined_at');
     }
 }
