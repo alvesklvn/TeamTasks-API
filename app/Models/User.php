@@ -2,16 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Override;
 
-class User extends Model
+class User extends Authenticatable implements MustVerifyEmail
 {
+    use HasApiTokens;
+
+    use Notifiable;
+
     protected $fillable = [
         'name',
-        'email'
+        'email',
+        'password_hash'
     ];
 
     protected $hidden = [
@@ -26,6 +35,7 @@ class User extends Model
             'name' => 'string',
             'email' => 'string',
             'password_hash' => 'string',
+            'email_verified_at' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime'
         ];      
