@@ -13,11 +13,6 @@ class AuthService
 
     public function register(array $data)
     {
-        $exists = User::where('email', $data['email'])->exists();
-        if ($exists) {
-            throw new JsonException("email inválido");
-        }
-
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],

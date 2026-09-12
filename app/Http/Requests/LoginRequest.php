@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class LoginRequest extends FormRequest
 {
@@ -23,8 +24,8 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|string|min:8|max:45',
-            'password' => 'required|string|min:8|max:50'
+            'email' => 'required|email:rfc,dns|max:50',
+            'password' => ['required', 'string', Password::min(8)->letters()->symbols()->numbers()]
         ];
     }
 }
