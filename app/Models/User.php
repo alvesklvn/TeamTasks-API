@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\VerifyEmailNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -49,5 +50,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function projects(): BelongsToMany
     {
         return $this->belongsToMany(Project::class)->withPivot('role', 'joined_at');
+    }
+
+    #[Override]
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new VerifyEmailNotification());
     }
 }
