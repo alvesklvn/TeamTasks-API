@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Services\ProjectServices;
+use App\Http\Requests\AddMembersRequest;
 use App\Http\Requests\NewProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
 
-class ProjectControler extends Controller
+class ProjectController extends Controller
 {
     public function __construct(private ProjectServices $service)
     {
@@ -43,6 +44,15 @@ class ProjectControler extends Controller
         }
 
         return response()->json(["message" => "Você recusou a entrada no projeto!"]);
+    }
+
+    public function addMembers(AddMembersRequest $request, Project $project)
+    {
+        $data = $request->validated();
+        $insertMembers = $this->service->addMembers($project, $data);
+        if ($insertMembers){
+            return response()->json(["message" => "Os usuários foram inseridos com sucesso!"]);
+        }
     }
 
     /**

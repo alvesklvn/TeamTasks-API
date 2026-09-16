@@ -57,6 +57,40 @@ class ProjectServices
         }
     }
 
+    public function addMembers(Project $project, array $data)
+    {
+        foreach ($data['members'] as $member){
+            try {
+                $user = User::where('email', $member['email'])->whereNotNull('email_verified_at')->first();
+                
+                if (!$user){
+                    continue;
+                }
+
+                $userIsInProject = $project->users()->where('users.id', $user->id)->exists();
+                
+                if ($userIsInProject){
+                    continue;
+                }
+
+            
+                $project->users()->attach($user->id, [
+                    'role' => ($member['is_admin'] ?? false) ? 'admin' : 'user'
+                ]);
+            
+            } catch (\Throwable $e) {
+                abort(500, "Não foi possível convidar o usuário ".$member['email']." ao projeto");
+            }
+
+            try {
+                Notification::route('mail', $user->email)->notify(new InviteUserToProjectNotification($project, $user));
+            } catch (\Throwable $e) {
+                abort(500, "Não foi possível enviar notificação ao email $user->email");
+            }
+        }
+        return true;
+    }
+
     public function joinProject(Project $project, User $user, string $response)
     {
         $memberInvited = $project->users()->wherePivot('user_id', $user->id)->wherePivot('status', 'invited')->first();

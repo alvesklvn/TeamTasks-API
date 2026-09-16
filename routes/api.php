@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ProjectControler;
+use App\Http\Controllers\ProjectController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,7 +16,8 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::prefix('project')->group(function () {
-    Route::post('create', [ProjectControler::class, 'store'])->middleware('auth:sanctum');
+    Route::post('create', [ProjectController::class, 'store'])->middleware('auth:sanctum');
+    Route::post('/{project}/members', [ProjectController::class, 'addMembers'])->middleware(['auth:sanctum', 'is.admin']);
 
-    Route::get('/{project}/{response}', [ProjectControler::class, 'join'])->middleware('auth:sanctum');
+    Route::get('/{project}/{response}', [ProjectController::class, 'join'])->middleware('auth:sanctum');
 });
