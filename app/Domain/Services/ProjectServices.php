@@ -2,6 +2,7 @@
 
 namespace App\Domain\Services;
 
+use App\Jobs\SendProjectInvitationJob;
 use App\Models\Project;
 use App\Models\User;
 use App\Notifications\InviteUserToProjectNotification;
@@ -48,7 +49,7 @@ class ProjectServices
         try {
             if ($members->isNotEmpty()){
                     foreach($members as $member){
-                        Notification::route('mail', $member->email)->notify(new InviteUserToProjectNotification($project, $member));
+                        SendProjectInvitationJob::dispatch($project, $member);
                     }
                 }
             return $project;
@@ -82,11 +83,8 @@ class ProjectServices
                 abort(500, "Não foi possível convidar o usuário ".$member['email']." ao projeto");
             }
 
-            try {
-                Notification::route('mail', $user->email)->notify(new InviteUserToProjectNotification($project, $user));
-            } catch (\Throwable $e) {
-                abort(500, "Não foi possível enviar notificação ao email $user->email");
-            }
+            SendProjectInvitationJob::dispatch($project, $user);
+            
         }
         return true;
     }
