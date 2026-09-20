@@ -32,29 +32,26 @@ class ProjectServices
                     'status' => 'joined'
                 ]);
 
+                
+
                 if ($members->isNotEmpty()){
                     $project->users()->attach($members->pluck('id'), [
                         'role' => 'user',
                         'joined_at' => null,
                         'status' => 'invited'
                     ]);
+
+                    foreach($members as $member) {
+                        SendProjectInvitationJob::dispatch($project, $member)->afterCommit();
+                    }
                 }
+
                 $project->refresh();
                 return $project; 
             });
-        } catch (\Throwable $e) {
-            throw new JsonException($e->getMessage());
-        }
-
-        try {
-            if ($members->isNotEmpty()){
-                    foreach($members as $member){
-                        SendProjectInvitationJob::dispatch($project, $member);
-                    }
-                }
             return $project;
         } catch (\Throwable $e) {
-            throw new JsonException("erro ao enviar o email: ".$e->getMessage());
+            abort(500, $e->getMessage());
         }
     }
 

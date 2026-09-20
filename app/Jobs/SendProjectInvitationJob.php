@@ -5,16 +5,22 @@ namespace App\Jobs;
 use App\Models\Project;
 use App\Models\User;
 use App\Notifications\InviteUserToProjectNotification;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Throwable;
 
 class SendProjectInvitationJob implements ShouldQueue
 {
     use Queueable;
 
     public int $tries = 4;
+    public function backoff(): array
+    {
+        return [10, 15, 20];
+    }
 
     /**
      * Create a new job instance.
@@ -29,17 +35,17 @@ class SendProjectInvitationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        try {
-                Notification::route('mail', $this->member->email)->notify(new InviteUserToProjectNotification($this->project, $this->member));
-            } catch (\Throwable $e) {
-                Log::error('Falha ao enviar o convite', [
+        
+        Notification::route('mail', $this->member->email)->notify(new InviteUserToProjectNotification($this->project, $this->member));
+    }
+
+    public function failed(?Throwable $exception)
+    {
+        Log::error('Falha ao enviar o convite', [
                     'user_id' => $this->member->id,
                     'user_email' => $this->member->email,
                     'project_id' => $this->project->id,
-                    'error' => $e->getMessage()
+                    'error' => $exception->getMessage()
                 ]);
-
-                throw $e;
-            }
     }
 }
