@@ -38,11 +38,11 @@ class ProjectServices
                     $project->users()->attach($members->pluck('id'), [
                         'role' => 'user',
                         'joined_at' => null,
-                        'status' => 'invited'
+                        'status' => 'pending'
                     ]);
 
                     foreach($members as $member) {
-                        SendProjectInvitationJob::dispatch($project, $member)->afterCommit();
+                        SendProjectInvitationJob::dispatch($project, $member)->onQueue('email')->afterCommit();
                     }
                 }
 
@@ -57,32 +57,35 @@ class ProjectServices
 
     public function addMembers(Project $project, array $data)
     {
-        foreach ($data['members'] as $member){
-            try {
-                $user = User::where('email', $member['email'])->whereNotNull('email_verified_at')->first();
+        DB::transaction(function () use ($data, $project){
+            foreach ($data['members'] as $member){
+                try {
+                    $user = User::where('email', $member['email'])->whereNotNull('email_verified_at')->first();
+                    
+                    if (!$user){
+                        continue;
+                    }
+
+                    $userIsInProject = $project->users()->where('users.id', $user->id)->exists();
+                    
+                    if ($userIsInProject){
+                        continue;
+                    }
+
                 
-                if (!$user){
-                    continue;
+                    $project->users()->attach($user->id, [
+                        'role' => ($member['is_admin'] ?? false) ? 'admin' : 'user',
+                        'status' => 'pending'
+                    ]);
+                
+                } catch (\Throwable $e) {
+                    abort(500, "Não foi possível convidar o usuário ".$member['email']." ao projeto");
                 }
 
-                $userIsInProject = $project->users()->where('users.id', $user->id)->exists();
+                #SendProjectInvitationJob::dispatch($project, $user)->onQueue('email')->afterCommit();
                 
-                if ($userIsInProject){
-                    continue;
-                }
-
-            
-                $project->users()->attach($user->id, [
-                    'role' => ($member['is_admin'] ?? false) ? 'admin' : 'user'
-                ]);
-            
-            } catch (\Throwable $e) {
-                abort(500, "Não foi possível convidar o usuário ".$member['email']." ao projeto");
             }
-
-            SendProjectInvitationJob::dispatch($project, $user);
-            
-        }
+        });
         return true;
     }
 
