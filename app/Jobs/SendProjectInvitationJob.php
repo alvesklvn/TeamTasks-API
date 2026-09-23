@@ -6,13 +6,16 @@ use App\Models\Project;
 use App\Models\User;
 use App\Notifications\InviteUserToProjectNotification;
 use Exception;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\Middleware\RateLimited;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Throwable;
 
-class SendProjectInvitationJob implements ShouldQueue
+class SendProjectInvitationJob implements ShouldQueue, ShouldBeUnique
 {
     use Queueable;
 
@@ -29,9 +32,22 @@ class SendProjectInvitationJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(private Project $project, private User $member)
+    public function __construct(public Project $project, public User $member)
     {
         
+    }
+
+    public function uniqueId(): string
+    {
+        return "projectinvitation:project-{$this->project->id}-user0{$this->member->id}";
+    }
+
+    public function middleware(): array
+    {
+        return [
+            new WithoutOverlapping("project-invitation:project-{$this->project->id}-user-{$this->member->id}"),
+            new RateLimited('project-invitations')
+        ];
     }
 
     /**

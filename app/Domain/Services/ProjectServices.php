@@ -82,7 +82,7 @@ class ProjectServices
                     abort(500, "Não foi possível convidar o usuário ".$member['email']." ao projeto");
                 }
 
-                #SendProjectInvitationJob::dispatch($project, $user)->onQueue('email')->afterCommit();
+                SendProjectInvitationJob::dispatch($project, $user)->onQueue('email')->afterCommit();
                 
             }
         });
@@ -91,7 +91,7 @@ class ProjectServices
 
     public function joinProject(Project $project, User $user, string $response)
     {
-        $memberInvited = $project->users()->wherePivot('user_id', $user->id)->wherePivot('status', 'invited')->first();
+        $memberInvited = $project->users()->where('users.id', $user->id)->wherePivot('status', 'invited')->first();
 
         if (!$memberInvited){
             throw new JsonException("Você não tem invites pendentes nesse projeto", 404);
