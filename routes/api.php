@@ -18,6 +18,6 @@ Route::prefix('auth')->group(function () {
 Route::prefix('project')->group(function () {
     Route::post('create', [ProjectController::class, 'store'])->middleware('auth:sanctum');
     Route::post('/{project}/members', [ProjectController::class, 'addMembers'])->middleware(['auth:sanctum', 'is.admin']);
-
+    Route::post('/{project}/tasks', [ProjectController::class, 'addTasks'])->middleware(['auth:sanctum', 'is.admin']);
     Route::get('/{project}/{response}', [ProjectController::class, 'join'])->middleware('auth:sanctum');
 });

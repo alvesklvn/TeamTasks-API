@@ -11,7 +11,10 @@ class Task extends Model
     protected $fillable = [
         'name',
         'description',
-        'deadline'
+        'deadline',
+        'user_id',
+        'project_id',
+        'status_id'
     ];
 
     #[Override]

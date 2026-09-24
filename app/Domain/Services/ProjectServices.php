@@ -4,6 +4,7 @@ namespace App\Domain\Services;
 
 use App\Jobs\SendProjectInvitationJob;
 use App\Models\Project;
+use App\Models\Task;
 use App\Models\User;
 use App\Notifications\InviteUserToProjectNotification;
 use Illuminate\Support\Facades\DB;
@@ -51,7 +52,7 @@ class ProjectServices
             });
             return $project;
         } catch (\Throwable $e) {
-            abort(500, $e->getMessage());
+            return false;
         }
     }
 
@@ -79,13 +80,48 @@ class ProjectServices
                     ]);
                 
                 } catch (\Throwable $e) {
-                    abort(500, "Não foi possível convidar o usuário ".$member['email']." ao projeto");
+                    return false;
                 }
 
                 SendProjectInvitationJob::dispatch($project, $user)->onQueue('email')->afterCommit();
                 
             }
         });
+        return true;
+    }
+
+    public function addTasks(Project $project, array $data)
+    {
+        DB::transaction(function () use ($project, $data){
+            try {
+                foreach ($data['tasks'] as $task){
+
+                    $user = User::where('email', $task['email'])->whereNotNull('email_verified_at')->first();
+
+                    if (!$user){
+                        continue;
+                    }
+
+                    $userIsInProject = $project->users()->where('users.id', $user->id)->exists();
+
+                    if (!$userIsInProject){
+                        continue;
+                    }
+
+                    $task = Task::create([
+                        'name' => $task['name'],
+                        'description' => $task['description'],
+                        'deadline' => $task['deadline'],
+                        'user_id' => $user->id,
+                        'project_id' => $project->id,
+                        'status_id' => 1
+                    ]);
+                }
+            } catch(\Throwable $e){
+                return false;
+            }
+        });
+
         return true;
     }
 

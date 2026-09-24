@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Domain\Services\ProjectServices;
 use App\Http\Requests\AddMembersRequest;
+use App\Http\Requests\AddTasksRequest;
 use App\Http\Requests\NewProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
@@ -32,6 +33,9 @@ class ProjectController extends Controller
         $data = $request->validated();
         $currentUser = $request->user();
         $project = $this->service->create($data, $currentUser);
+        if (!$project){
+            return response()->json(["message" => "não foi possível criar o projeto"], 422);
+        }
         return new ProjectResource($project);
     }
 
@@ -52,6 +56,18 @@ class ProjectController extends Controller
         $insertMembers = $this->service->addMembers($project, $data);
         if ($insertMembers){
             return response()->json(["message" => "Os usuários foram inseridos com sucesso!"]);
+        } else {
+            return response()->json(["message" => "não foi possível inserir usuários"], 422);
+        }
+    }
+
+    public function addTasks(AddTasksRequest $request, Project $project)
+    {
+        $data = $request->validated();
+        if ($this->service->addTasks($project, $data)){
+            return response()->json(["message" => "tarefas criadas com sucesso"]);
+        } else {
+            return response()->json(["message" => "não foi possível criar as tarefas"], 422);
         }
     }
 
