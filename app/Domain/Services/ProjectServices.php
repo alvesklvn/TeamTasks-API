@@ -90,41 +90,6 @@ class ProjectServices
         return true;
     }
 
-    public function addTasks(Project $project, array $data)
-    {
-        DB::transaction(function () use ($project, $data){
-            try {
-                foreach ($data['tasks'] as $task){
-
-                    $user = User::where('email', $task['email'])->whereNotNull('email_verified_at')->first();
-
-                    if (!$user){
-                        continue;
-                    }
-
-                    $userIsInProject = $project->users()->where('users.id', $user->id)->exists();
-
-                    if (!$userIsInProject){
-                        continue;
-                    }
-
-                    $task = Task::create([
-                        'name' => $task['name'],
-                        'description' => $task['description'],
-                        'deadline' => $task['deadline'],
-                        'user_id' => $user->id,
-                        'project_id' => $project->id,
-                        'status_id' => 1
-                    ]);
-                }
-            } catch(\Throwable $e){
-                return false;
-            }
-        });
-
-        return true;
-    }
-
     public function joinProject(Project $project, User $user, string $response)
     {
         $memberInvited = $project->users()->where('users.id', $user->id)->wherePivot('status', 'invited')->first();

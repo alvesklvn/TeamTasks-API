@@ -4,11 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Domain\Services\ProjectServices;
 use App\Http\Requests\AddMembersRequest;
-use App\Http\Requests\AddTasksRequest;
 use App\Http\Requests\NewProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -58,16 +56,6 @@ class ProjectController extends Controller
             return response()->json(["message" => "Os usuários foram inseridos com sucesso!"]);
         } else {
             return response()->json(["message" => "não foi possível inserir usuários"], 422);
-        }
-    }
-
-    public function addTasks(AddTasksRequest $request, Project $project)
-    {
-        $data = $request->validated();
-        if ($this->service->addTasks($project, $data)){
-            return response()->json(["message" => "tarefas criadas com sucesso"]);
-        } else {
-            return response()->json(["message" => "não foi possível criar as tarefas"], 422);
         }
     }
 
