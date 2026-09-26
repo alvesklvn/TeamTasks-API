@@ -110,4 +110,29 @@ class ProjectServices
         $project->users()->detach($user->id);
         return "recusou";
     }
+
+    public function leave(Project $project, User $user)
+    {
+        $projectAdmins = $project->users()->wherePivot('role', 'admin')->get();
+        $isAdmin = $projectAdmins->contains($user);
+        
+        if ($projectAdmins->count() === 1 && $isAdmin){
+            return false;
+        }
+
+        $project->users()->detach($user->id);
+        $user->tasks()->where('project_id', $project->id)->delete();
+        return true;
+    }
+
+    public function delete(Project $project)
+    {
+        try {
+            $project->tasks()->delete();
+            $project->delete();
+            return true;
+        } catch (\Throwable $e){
+            return false;
+        }
+    }
 }

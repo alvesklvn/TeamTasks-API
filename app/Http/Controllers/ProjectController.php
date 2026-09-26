@@ -30,7 +30,7 @@ class ProjectController extends Controller
             return ProjectResource::collection($projects);
         }
 
-        return response()->json(["Você não participa de nenhum projeto."], 404);
+        return response()->json(["message" => "Você não participa de nenhum projeto."], 404);
     }
 
     /**
@@ -77,19 +77,25 @@ class ProjectController extends Controller
         return new ProjectResource($project);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function leave(Request $request, Project $project)
     {
-        //
+        $user = $request->user();
+        if ($this->service->leave($project, $user)){
+            return response()->json(["message" => "Você saiu do projeto $project->title."]);
+        }
+
+        return response()->json(["message" => "Não foi possível sair do projeto $project->title."], 422);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Project $project)
     {
-        //
+        if ($this->service->delete($project)){
+            return response()->json(["message" => "Projeto deletado com sucesso."]);
+        }
+
+        return response()->json(["message" => "Não foi possível deletar este projeto."], 422);
     }
 }

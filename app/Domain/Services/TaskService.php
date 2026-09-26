@@ -86,6 +86,11 @@ class TaskService
                 $task->deadline = $data['deadline'];
             }
 
+            if (isset($data['status'])) {
+                $status_id = DB::table('statuses')->where('name', $data['status'])->value('id');
+                $task->status_id = $status_id;
+            }
+
             $task->save();
             return true;
         }catch(\Throwable $e){

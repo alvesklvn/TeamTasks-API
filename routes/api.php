@@ -27,9 +27,13 @@ Route::prefix('project')->group(function () {
 
     Route::get('/{project}/decision/{response}', [ProjectController::class, 'join'])->middleware('auth:sanctum');
 
+    Route::delete('/{project}/leave', [ProjectController::class, 'leave'])->middleware(['auth:sanctum', 'user.inProject']);
+
+    Route::delete('/{project}/delete', [ProjectController::class, 'destroy'])->middleware(['auth:sanctum', 'is.admin']);
+
     Route::post('/{project}/tasks', [TaskController::class, 'create'])->middleware(['auth:sanctum', 'is.admin']);
 
-    Route::get('/{project}/tasks/{task?}', [TaskController::class, 'index'])->middleware(['auth:sanctum', 'user.inProject']);    
+    Route::get('/{project}/tasks/{task?}', [TaskController::class, 'index'])->middleware(['auth:sanctum', 'user.inProject']);
 });
 
 Route::prefix('tasks')->group(function () {

@@ -33,10 +33,10 @@ class TaskController extends Controller
         $data = $request->validated();
         $result = $this->service->update($task, $data);
         if ($result) {
-            return response()->json(["tarefa atualizada com sucesso!"]);
+            return response()->json(["message" => "tarefa atualizada com sucesso!"]);
         }
 
-        return response()->json(["erro ao atualizar tarefa!"], 422);
+        return response()->json(["message" => "erro ao atualizar tarefa!"], 422);
     }
 
     public function index(Request $request, Project $project, ?Task $task = null)
@@ -48,6 +48,6 @@ class TaskController extends Controller
             return TaskResource::collection($result);
         }
 
-        return response()->json(["erro ao encontrar a tarefa!"], 404);
+        return response()->json(["message" => "erro ao encontrar a tarefa!"], 404);
     }
 }
