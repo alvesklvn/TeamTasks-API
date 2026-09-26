@@ -70,4 +70,26 @@ class TaskService
             return $project->tasks()->where('user_id', $user->id)->get();
         }
     }
+
+    public function update(Task $task, array $data)
+    {
+        try {
+            if (isset($data['name'])) {
+                $task->name = $data['name'];
+            }
+
+            if (isset($data['description'])) {
+                $task->description = $data['description'];
+            }
+
+            if (isset($data['deadline'])) {
+                $task->deadline = $data['deadline'];
+            }
+
+            $task->save();
+            return true;
+        }catch(\Throwable $e){
+            return false;
+        }
+    }
 }

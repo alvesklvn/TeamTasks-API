@@ -23,9 +23,14 @@ Route::prefix('project')->group(function () {
 
     Route::post('/{project}/members', [ProjectController::class, 'addMembers'])->middleware(['auth:sanctum', 'is.admin']);
 
-    Route::post('/{project}/tasks', [TaskController::class, 'addTasks'])->middleware(['auth:sanctum', 'is.admin']);
+    Route::post('/{project}/tasks', [TaskController::class, 'create'])->middleware(['auth:sanctum', 'is.admin']);
 
-    Route::get('/{project}/tasks/{task?}', [TaskController::class, 'showTasks'])->middleware('auth:sanctum');
+    Route::get('/{project}/tasks/{task?}', [TaskController::class, 'index'])->middleware(['auth:sanctum', 'user.inProject']);
 
     Route::get('/{project}/{response}', [ProjectController::class, 'join'])->middleware('auth:sanctum');
+});
+
+Route::prefix('tasks')->group(function () {
+    Route::patch('/{task}', [TaskController::class, 'update'])->middleware(['auth:sanctum', 'user.adminOrOwner']);
+    Route::put('/{task}', [TaskController::class, 'update'])->middleware(['auth:sanctum', 'user.adminOrOwner']);
 });

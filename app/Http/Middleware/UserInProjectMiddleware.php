@@ -7,15 +7,16 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class UserInProject
+class UserInProjectMiddleware
 {
     /**
      * Handle an incoming request.
      *
      * @param  Closure(Request): (Response)  $next
      */
-    public function handle(Request $request, Project $project, Closure $next): Response
+    public function handle(Request $request, Closure $next): Response
     {
+        $project = $request->route('project');
         $user = $request->user();
         $userInProject = $project->users()->where('users.id', $user->id)->exists();
         if (!$userInProject){
