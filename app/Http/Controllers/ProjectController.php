@@ -8,6 +8,9 @@ use App\Http\Requests\NewProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+
+use function PHPUnit\Framework\isEmpty;
 
 class ProjectController extends Controller
 {
@@ -18,9 +21,16 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $user = $request->user();
+        $projects = $user->projects;
+
+        if ($projects->isNotEmpty()){
+            return ProjectResource::collection($projects);
+        }
+
+        return response()->json(["Você não participa de nenhum projeto."], 404);
     }
 
     /**
