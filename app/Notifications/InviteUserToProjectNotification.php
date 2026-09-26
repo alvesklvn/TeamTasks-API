@@ -36,7 +36,7 @@ class InviteUserToProjectNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $url = "/api/project/".$this->project->id;
+        $url = "/api/project/".$this->project->id."/decision";
         return (new MailMessage)
             ->subject('Um novo convite foi recebido')
             ->greeting("Olá, ".$this->guest->name."!")

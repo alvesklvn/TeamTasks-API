@@ -56,10 +56,10 @@ class TaskService
             }
 
             if ($isAdmin){
-                return $project->tasks()->where('id', $task->id)->first();
+                return $project->tasks()->where('id', $task->id)->get();
             } 
 
-            return $project->tasks()->where('id', $task->id)->where('user_id', $user->id)->first();
+            return $project->tasks()->where('id', $task->id)->where('user_id', $user->id)->get();
             
 
         } else {
@@ -74,8 +74,8 @@ class TaskService
     public function update(Task $task, array $data)
     {
         try {
-            if (isset($data['name'])) {
-                $task->name = $data['name'];
+            if (isset($data['title'])) {
+                $task->name = $data['title'];
             }
 
             if (isset($data['description'])) {

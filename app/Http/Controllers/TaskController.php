@@ -44,8 +44,8 @@ class TaskController extends Controller
         $user = $request->user();
 
         $result = $this->service->show($project, $user, $task);
-        if ($result){
-            return $result instanceof Collection ? TaskResource::collection($result) : new TaskResource($result);
+        if ($result && $result->isNotEmpty()){
+            return TaskResource::collection($result);
         }
 
         return response()->json(["erro ao encontrar a tarefa!"], 404);

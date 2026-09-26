@@ -23,9 +23,9 @@ class UpdateTasksRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required_without_all|string|regex:/^[0-9A-Za-zÀ-ú ]+$/|min:1|max:30',
-            'description' => 'required_without_all|string|regex:/^[0-9A-Za-zÀ-ú .,]+$/|min:10|max:255',
-            'deadline' => 'required_without_all|date'
+            'title' => 'required_without_all:description,deadline|string|regex:/^[0-9A-Za-zÀ-ú ]+$/|min:1|max:30',
+            'description' => 'required_without_all:title,deadline|string|regex:/^[0-9A-Za-zÀ-ú .,]+$/|min:10|max:255',
+            'deadline' => 'required_without_all:title,description|description|date'
         ];
     }
 }

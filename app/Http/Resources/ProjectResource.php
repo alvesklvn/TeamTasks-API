@@ -17,7 +17,7 @@ class ProjectResource extends JsonResource
         return [
             'titulo' => $this->title,
             'descrição' => $this->description,
-            'membros' => $this->users->pluck('name')
+            'membros' => $this->users()->wherePivot('status', 'joined')->pluck('name')
         ];
     }
 }
